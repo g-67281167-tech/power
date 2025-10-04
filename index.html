@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Simulation: High Voltage Power Transmission | Green Technology</title>
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --secondary: #4CAF50;
+            --accent: #FFC107;
+            --dark: #1B5E20;
+            --light: #E8F5E9;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.5s, color 0.5s;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .developer-credit {
+            position: absolute;
+            bottom: 15px;
+            right: 25px;
+            font-size: 14px;
+            color: #2E7D32;
+            z-index: 100;
+            font-weight: 500;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary);
+        }
+        header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: var(--light);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .simulation-area {
+            flex: 2;
+            min-width: 500px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .control-group {
+            margin-bottom: 25px;
+        }
+        .control-group h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        .slider-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+        .scenario {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+            position: relative;
+            cursor: help;
+        }
+        .scenario:hover {
+            transform: translateY(-5px);
+        }
+        .scenario h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .scenario p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 10px 0;
+        }
+        .scenario.low-voltage {
+            border-top: 5px solid #F44336;
+        }
+        .scenario.high-voltage {
+            border-top: 5px solid var(--primary);
+        }
+        .visualization {
+            height: 350px;
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(to bottom, #E3F2FD, #BBDEFB);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .power-plant, .residential, .transformer {
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+        }
+        .power-plant { left: 30px; top: 50%; transform: translateY(-50%); width: 140px; }
+        .step-up-transformer { left: 180px; top: 50%; transform: translateY(-50%); width: 120px; }
+        .step-down-transformer { right: 180px; top: 50%; transform: translateY(-50%); width: 120px; }
+        .residential { right: 30px; top: 50%; transform: translateY(-50%); width: 140px; }
+        .power-plant-icon { font-size: 80px; margin: 0 auto 15px; display: block; height: 90px; }
+        .residential-icon { font-size: 70px; margin: 0 auto 15px; display: block; height: 80px; }
+        .transformer-symbol { width: 80px; height: 80px; margin: 0 auto 10px; display: block; position: relative; }
+        .transformer-core { position: absolute; width: 60px; height: 60px; top: 10px; left: 10px; border: 3px solid #795548; border-radius: 5px; }
+        .transformer-winding { position: absolute; width: 50px; height: 50px; border: 2px solid #2196F3; border-radius: 3px; }
+        .primary-winding { top: 5px; left: 5px; border-right: none; }
+        .secondary-winding { top: 15px; left: 15px; border-left: none; }
+        .winding-turns { position: absolute; background: #2196F3; width: 3px; height: 8px; border-radius: 1px; }
+        .component-label { font-weight: 600; font-size: 1rem; margin-bottom: 5px; color: var(--dark); position: relative; cursor: help; }
+        .voltage-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--primary);
+            border: 1px solid var(--secondary);
+            white-space: nowrap;
+        }
+        .cable-container {
+            position: absolute;
+            top: 50%;
+            left: 280px;
+            right: 280px;
+            height: 50px;
+            transform: translateY(-50%);
+        }
+        .cable-glow {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: rgba(255, 0, 0, 0);
+            border-radius: 18px;
+            transform: translateY(-50%);
+            transition: background 0.5s ease;
+            filter: blur(10px);
+        }
+        .cable {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: #795548;
+            border-radius: 6px;
+            transform: translateY(-50%);
+            z-index: 2;
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+        .cable-section {
+            position: absolute;
+            height: 8px;
+            background: #795548;
+            border-radius: 4px;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+        .cable-low { top: 40%; left: 160px; width: 25px; background: #FF5722; }
+        .cable-high { top: 50%; left: 280px; right: 280px; background: #795548; transition: background 0.5s ease, box-shadow 0.5s ease; }
+        .cable-low-2 { top: 60%; right: 160px; width: 25px; background: #FF5722; }
+        .electron {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 12px var(--accent);
+            animation: moveElectron 3s linear infinite;
+            z-index: 3;
+        }
+        .electron-low { background: #FF9800; animation-duration: 1s; }
+        .electron-high { background: var(--accent); animation-duration: 3s; }
+        .heat-loss {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 0, 0, 0.7);
+            opacity: 0;
+            animation: heatPulse 2s infinite;
+            z-index: 1;
+        }
+        @keyframes moveElectron {
+            0% { left: 0; }
+            100% { left: calc(100% - 14px); }
+        }
+        @keyframes heatPulse {
+            0% { transform: scale(0.5); opacity: 0.7; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .stat-item {
+            padding: 10px;
+            position: relative;
+            cursor: help;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            margin-bottom: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--dark);
+        }
+        .stat-item:hover .tooltip,
+        .scenario:hover .tooltip,
+        .component-label:hover .tooltip {
+            opacity: 1;
+        }
+        .eco-impact {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .eco-impact h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .eco-metrics {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .eco-metric {
+            margin: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            min-width: 150px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        .eco-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark);
+            color: white;
+            margin-top: 30px;
+            position: relative;
+        }
+        .footer-credit {
+            font-size: 14px;
+            color: #C8E6C9;
+            margin-top: 10px;
+        }
+        .btn-reset {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin: 20px auto 0;
+        }
+        .btn-reset:hover {
+            background: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-export {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin: 10px auto 0;
+        }
+        .btn-export:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .quiz-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        .quiz-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        .quiz-question {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            color: var(--dark);
+        }
+        .quiz-question:first-of-type {
+            margin-top: 0;
+        }
+        .quiz-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .quiz-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: var(--light);
+            color: var(--dark);
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quiz-btn:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .quiz-feedback {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+        }
+        .quiz-feedback.correct {
+            background: #C8E6C9;
+            color: #1B5E20;
+            border-left: 4px solid var(--primary);
+        }
+        .quiz-feedback.incorrect {
+            background: #FFCDD2;
+            color: #B71C1C;
+            border-left: 4px solid #F44336;
+        }
+        .chart-section {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .chart-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .chart-section canvas {
+            max-height: 300px;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #232323, #333);
+            color: #eee;
+        }
+        body.dark-mode .container,
+        body.dark-mode .control-panel,
+        body.dark-mode .simulation-area,
+        body.dark-mode .eco-impact,
+        body.dark-mode .chart-section {
+            background: #222 !important;
+            color: #eee !important;
+        }
+        body.dark-mode header {
+            background: linear-gradient(90deg, #333, #444);
+            color: #fff;
+        }
+        body.dark-mode .btn-reset,
+        body.dark-mode .btn-export {
+            background: #444 !important;
+            color: #ffd700 !important;
+        }
+        body.dark-mode .scenario.low-voltage {
+            border-top: 5px solid #B71C1C;
+        }
+        body.dark-mode .scenario.high-voltage {
+            border-top: 5px solid #388E3C;
+        }
+        body.dark-mode .stat-value,
+        body.dark-mode .eco-value {
+            color: #ffd700 !important;
+        }
+        @keyframes cablePulse {
+            0% { box-shadow: 0 0 10px #ffc107; }
+            50% { box-shadow: 0 0 40px #ffc107; }
+            100% { box-shadow: 0 0 10px #ffc107; }
+        }
+        .cable-animated { animation: cablePulse 1s 2; }
+        @keyframes transformerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+            100% { transform: scale(1); }
+        }
+        .transformer-animated { animation: transformerPulse 0.7s 2; }
+        @media (max-width: 600px) {
+            .content {
+                flex-direction: column !important;
+                gap: 0 !important;
+            }
+            .container, header, .control-panel, .simulation-area, .eco-impact, .chart-section {
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 8px !important;
+            }
+            .developer-credit {
+                margin-top: 8px;
+                font-size: 13px;
+            }
+        }
+        .image-gallery {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .gallery-image-wrapper {
+            flex: 1 1 340px;
+            max-width: 450px;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .gallery-image-wrapper img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(44,44,44,0.12);
+            border: 2px solid var(--light);
+            background: #eee;
+            margin-bottom: 8px;
+        }
+        .gallery-caption {
+            font-size: 1rem;
+            color: #444;
+            text-align: center;
+            font-style: italic;
+        }
+        @media (max-width: 900px) {
+            .image-gallery { gap: 12px; }
+            .gallery-image-wrapper img { height: 120px; }
+        }
+        @media (max-width: 600px) {
+            .image-gallery { flex-direction: column; gap: 10px; }
+            .gallery-image-wrapper { max-width: 98vw; min-width: 100px; }
+            .gallery-image-wrapper img { height: 90px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="developer-credit">develop on 29/9/2025 by AKTP</div>
+        <header>
+            <div class="header-decoration"></div>
+            <h1>High Voltage Power Transmission Simulation</h1>
+            <p>Interactive Demonstration of Green Technology: Reducing Power Loss Through High Voltage Transmission</p>
+            <button id="darkModeToggle" style="position:absolute; top:20px; right:20px; z-index:101;">🌙 Dark Mode</button>
+        </header>
+        <div class="content">
+            <div class="control-panel">
+                <div class="control-group">
+                    <h3>Power Transmission Controls</h3>
+                    <div class="slider-container">
+                        <label for="power">Electrical Power (kW)</label>
+                        <div class="slider-value">
+                            <span>100 kW</span>
+                            <span id="powerValue">500 kW</span>
+                            <span>1000 kW</span>
+                        </div>
+                        <input type="range" id="power" min="100" max="1000" value="500" step="10">
+                    </div>
+                    <div class="slider-container">
+                        <label for="distance">Transmission Distance (km)</label>
+                        <div class="slider-value">
+                            <span>10 km</span>
+                            <span id="distanceValue">50 km</span>
+                            <span>100 km</span>
+                        </div>
+                        <input type="range" id="distance" min="10" max="100" value="50" step="5">
+                    </div>
+                    <div class="slider-container">
+                        <label for="resistance">Cable Resistance (Ω/km)</label>
+                        <div class="slider-value">
+                            <span>0.1 Ω/km</span>
+                            <span id="resistanceValue">0.3 Ω/km</span>
+                            <span>0.5 Ω/km</span>
+                        </div>
+                        <input type="range" id="resistance" min="0.1" max="0.5" value="0.3" step="0.05">
+                    </div>
+                    <div class="slider-container">
+                        <label for="stepUpVoltage">Step-Up Transformer Voltage (kV)</label>
+                        <div class="slider-value">
+                            <span>11 kV</span>
+                            <span id="stepUpVoltageValue">132 kV</span>
+                            <span>400 kV</span>
+                        </div>
+                        <input type="range" id="stepUpVoltage" min="11" max="400" value="132" step="1">
+                    </div>
+                </div>
+                <div class="comparison">
+                    <div class="scenario low-voltage">
+                        <h4>Without Transformer</h4>
+                        <p id="lowVoltageLoss">0 kW</p>
+                        <div>Power Loss</div>
+                        <div class="tooltip">Formula: P_loss = I² × R × L</div>
+                    </div>
+                    <div class="scenario high-voltage">
+                        <h4>With Transformer</h4>
+                        <p id="highVoltageLoss">0 kW</p>
+                        <div>Power Loss</div>
+                        <div class="tooltip">Formula: P_loss = I² × R × L</div>
+                    </div>
+                </div>
+                <button class="btn-reset" id="resetBtn">Reset Simulation</button>
+                <button class="btn-export" id="exportBtn">Export Data to CSV</button>
+                <div class="quiz-section">
+                    <h3>Test Your Understanding</h3>
+                    <p class="quiz-question">1. What happens to power loss when voltage is increased?</p>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn" onclick="checkAnswer('increase')">It increases</button>
+                        <button class="quiz-btn" onclick="checkAnswer('decrease')">It decreases</button>
+                        <button class="quiz-btn" onclick="checkAnswer('same')">It stays the same</button>
+                    </div>
+                    <p id="quiz-feedback" class="quiz-feedback"></p>
+                    <p class="quiz-question">2. Which action helps reduce power loss in cables?</p>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn" onclick="checkAnswer2('thick')">Use thicker cables</button>
+                        <button class="quiz-btn" onclick="checkAnswer2('thin')">Use thinner cables</button>
+                        <button class="quiz-btn" onclick="checkAnswer2('no')">No effect</button>
+                    </div>
+                    <p id="quiz-feedback2" class="quiz-feedback"></p>
+                    <p class="quiz-question">3. Why is transmitting electricity at high voltage more efficient?</p>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn" onclick="checkAnswer3('current')">Because current is smaller, reducing I²R loss</button>
+                        <button class="quiz-btn" onclick="checkAnswer3('distance')">Because cables become shorter</button>
+                        <button class="quiz-btn" onclick="checkAnswer3('heat')">Because more heat is produced</button>
+                    </div>
+                    <p id="quiz-feedback3" class="quiz-feedback"></p>
+                </div>
+            </div>
+            <div class="simulation-area">
+                <h2>Power Transmission Visualization</h2>
+                <div class="visualization" id="visualization">
+                    <div class="power-plant">
+                        <div class="power-plant-icon">🏭</div>
+                        <div class="component-label">
+                            Bakun Hydroelectric Dam
+                            <div class="tooltip">Generates electrical power: P = V × I</div>
+                        </div>
+                        <div class="voltage-label" id="powerPlantVoltage">11 kV</div>
+                    </div>
+                    <div class="transformer step-up-transformer">
+                        <div class="transformer-symbol">
+                            <div class="transformer-core"></div>
+                            <div class="transformer-winding primary-winding"></div>
+                            <div class="transformer-winding secondary-winding"></div>
+                        </div>
+                        <div class="component-label">
+                            Step-Up Transformer
+                            <div class="tooltip">Increases voltage: V₂/V₁ = N₂/N₁</div>
+                        </div>
+                        <div class="voltage-label" id="stepUpLabel">11kV → 132kV</div>
+                    </div>
+                    <div class="transformer step-down-transformer">
+                        <div class="transformer-symbol">
+                            <div class="transformer-core"></div>
+                            <div class="transformer-winding primary-winding"></div>
+                            <div class="transformer-winding secondary-winding"></div>
+                        </div>
+                        <div class="component-label">
+                            Step-Down Transformer
+                            <div class="tooltip">Decreases voltage: V₂/V₁ = N₂/N₁</div>
+                        </div>
+                        <div class="voltage-label" id="stepDownLabel">132kV → 240V</div>
+                    </div>
+                    <div class="residential">
+                        <div class="residential-icon">🏠</div>
+                        <div class="component-label">
+                            SMK Bintulu
+                            <div class="tooltip">Uses electrical power: P = V × I</div>
+                        </div>
+                        <div class="voltage-label">240 V</div>
+                    </div>
+                    <div class="cable-container">
+                        <div class="cable-glow" id="cableGlow"></div>
+                        <div class="cable"></div>
+                    </div>
+                    <div class="cable-section cable-low"></div>
+                    <div class="cable-section cable-low-2"></div>
+                    <div class="cable-section cable-high" id="highVoltageCable"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Current (Low Voltage)</div>
+                        <div class="stat-value" id="lowCurrent">0 A</div>
+                        <div class="tooltip">Formula: I = P ÷ V</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Current (High Voltage)</div>
+                        <div class="stat-value" id="highCurrent">0 A</div>
+                        <div class="tooltip">Formula: I = P ÷ V</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Efficiency</div>
+                        <div class="stat-value" id="efficiency">0%</div>
+                        <div class="tooltip">Formula: η = (P - P_loss) ÷ P × 100%</div>
+                    </div>
+                </div>
+                <button id="showFormulaBtn" class="btn-reset" style="margin-top:10px;">Show Calculation Steps</button>
+                <div id="formulaModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:white; color:#222; border-radius:10px; padding:24px; z-index:999; box-shadow:0 6px 22px #222;">
+                    <h4>Kiraan Power Loss</h4>
+                    <p><b>P<sub>loss</sub> = I² × R × L</b></p>
+                    <p>
+                        <b>I = P ÷ V</b> <br>
+                        P = Power (Watt)<br>
+                        V = Voltage (Volt)<br>
+                        R = Resistance (Ohm/km)<br>
+                        L = Distance (km)
+                    </p>
+                    <button onclick="document.getElementById('formulaModal').style.display='none'" class="btn-reset" style="margin-top:8px;">Tutup</button>
+                </div>
+                <div class="eco-impact">
+                    <h3>Green Technology Impact</h3>
+                    <div class="eco-metrics">
+                        <div class="eco-metric">
+                            <div>Energy Saved</div>
+                            <div class="eco-value" id="savedEnergy">0 kWh</div>
+                            <div>per year</div>
+                        </div>
+                        <div class="eco-metric">
+                            <div>CO₂ Reduction</div>
+                            <div class="eco-value" id="co2Reduction">0 kg</div>
+                            <div>per year</div>
+                        </div>
+                        <div class="eco-metric">
+                            <div>Cost Savings</div>
+                            <div class="eco-value" id="costSavings">$ 0</div>
+                            <div>per year</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-section">
+                    <h3>Power Loss Comparison Chart</h3>
+                    <canvas id="powerLossChart"></canvas>
+                </div>
+                <!-- === GALERI GAMBAR DITAMBAH DI SINI === -->
+                <div class="image-gallery">
+                    <div class="gallery-image-wrapper">
+                        <img 
+                            src="https://www.sarawakenergy.com/assets/images/power-generation/P4P-2027-Panorama.jpg" 
+                            alt="Panorama of Bakun Hydroelectric Dam" 
+                            loading="lazy"
+                        >
+                        <div class="gallery-caption">Bakun Hydroelectric Dam (Panorama)</div>
+                    </div>
+                    <div class="gallery-image-wrapper">
+                        <img 
+                            src="https://scontent.fkch2-2.fna.fbcdn.net/v/t39.30808-6/557963189_10162067194485669_1409189167319352726_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=hVOL-4bSG6QQ7kNvwFhA0q9&_nc_oc=AdlkaKwwizqVV9nmmF3CnQs8kH0vUluN0rTCbtN1xpSBfhqIoCcxsm3fb0WT3CIaAAs34u_8RdM5og7KGvsX-bSu&_nc_zt=23&_nc_ht=scontent.fkch2-2.fna&_nc_gid=zQv1-RJl06drBgRBrBXO-A&oh=00_AfcYxC_Bf3DeQPstBPLXNrUyvTSEQ-69LKkYJ6frU_Cxuw&oe=68E7561A" 
+                            alt="SMK Bintulu School Front"
+                            loading="lazy"
+                        >
+                        <div class="gallery-caption">SMK Bintulu (School Front)</div>
+                    </div>
+                </div>
+                <!-- === TAMAT GALERI GAMBAR === -->
+            </div>
+        </div>
+        <div class="eco-impact" style="margin-top:30px;">
+            <h3>Komen / Cadangan Anda</h3>
+            <form id="feedbackForm">
+                <textarea id="feedbackText" rows="3" style="width:100%; border-radius:8px; padding:8px;" placeholder="Tulis komen atau soalan anda di sini..."></textarea><br>
+                <input type="text" id="feedbackName" style="width:60%; border-radius:8px; padding:6px;" placeholder="Nama (optional)">
+                <button type="submit" class="btn-reset" style="margin-left:10px;">Hantar</button>
+            </form>
+            <div id="feedbackStatus"></div>
+        </div>
+        <footer>
+            <p>Interactive Simulation for Green Technology Learning & Power Transmission | © 2023</p>
+            <div class="footer-credit">develop on 29/9/2025 by AKTP</div>
+        </footer>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        const powerSlider = document.getElementById('power');
+        const distanceSlider = document.getElementById('distance');
+        const resistanceSlider = document.getElementById('resistance');
+        const stepUpVoltageSlider = document.getElementById('stepUpVoltage');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const cableGlow = document.getElementById('cableGlow');
+        const powerValue = document.getElementById('powerValue');
+        const distanceValue = document.getElementById('distanceValue');
+        const resistanceValue = document.getElementById('resistanceValue');
+        const stepUpVoltageValue = document.getElementById('stepUpVoltageValue');
+        const lowVoltageLoss = document.getElementById('lowVoltageLoss');
+        const highVoltageLoss = document.getElementById('highVoltageLoss');
+        const lowCurrent = document.getElementById('lowCurrent');
+        const highCurrent = document.getElementById('highCurrent');
+        const efficiency = document.getElementById('efficiency');
+        const savedEnergy = document.getElementById('savedEnergy');
+        const co2Reduction = document.getElementById('co2Reduction');
+        const costSavings = document.getElementById('costSavings');
+        const powerPlantVoltage = document.getElementById('powerPlantVoltage');
+        const stepUpLabel = document.getElementById('stepUpLabel');
+        const stepDownLabel = document.getElementById('stepDownLabel');
+        const cableHigh = document.getElementById('highVoltageCable');
+        const LOW_VOLTAGE = 11000;
+        const RESIDENTIAL_VOLTAGE = 240;
+        const COST_PER_KWH = 0.12;
+        const CO2_PER_KWH = 0.5;
+        let powerLossChart = null;
+        function initSimulation() {
+            updateSimulation();
+            addElectrons();
+            initChart();
+        }
+        function initChart() {
+            const ctx = document.getElementById('powerLossChart');
+            if (!ctx) { console.error('Canvas element not found'); return; }
+            if (typeof Chart === 'undefined') { console.error('Chart.js not loaded'); setTimeout(initChart, 100); return; }
+            powerLossChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Low Voltage (11 kV)', 'High Voltage (132 kV)'],
+                    datasets: [{
+                        label: 'Power Loss (kW)',
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(244, 67, 54, 0.7)',
+                            'rgba(76, 175, 80, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(244, 67, 54, 1)',
+                            'rgba(76, 175, 80, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Power Loss (kW)', font: { size: 14, weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+        function updateChart(lossLow, lossHigh, stepUpVoltage) {
+            if (powerLossChart) {
+                powerLossChart.data.labels[1] = `High Voltage (${stepUpVoltage / 1000} kV)`;
+                powerLossChart.data.datasets[0].data = [lossLow, lossHigh];
+                powerLossChart.update();
+            }
+        }
+        function updateSimulation() {
+            const power = parseInt(powerSlider.value);
+            const distance = parseInt(distanceSlider.value);
+            const resistance = parseFloat(resistanceSlider.value);
+            const stepUpVoltage = parseInt(stepUpVoltageSlider.value) * 1000;
+            powerValue.textContent = `${power} kW`;
+            distanceValue.textContent = `${distance} km`;
+            resistanceValue.textContent = `${resistance} Ω/km`;
+            stepUpVoltageValue.textContent = `${stepUpVoltage / 1000} kV`;
+            stepUpLabel.textContent = `11kV → ${stepUpVoltage / 1000}kV`;
+            stepDownLabel.textContent = `${stepUpVoltage / 1000}kV → 240V`;
+            const currentLow = (power * 1000) / LOW_VOLTAGE;
+            const currentHigh = (power * 1000) / stepUpVoltage;
+            const lossLow = Math.pow(currentLow, 2) * resistance * distance / 1000;
+            const lossHigh = Math.pow(currentHigh, 2) * resistance * distance / 1000;
+            const totalEfficiency = ((power - lossHigh) / power) * 100;
+            lowVoltageLoss.textContent = `${lossLow.toFixed(1)} kW`;
+            highVoltageLoss.textContent = `${lossHigh.toFixed(3)} kW`;
+            lowCurrent.textContent = `${currentLow.toFixed(1)} A`;
+            highCurrent.textContent = `${currentHigh.toFixed(3)} A`;
+            efficiency.textContent = `${totalEfficiency.toFixed(1)}%`;
+            const energySaved = (lossLow - lossHigh) * 24 * 365;
+            const co2Saved = energySaved * CO2_PER_KWH;
+            const costSaved = energySaved * COST_PER_KWH;
+            savedEnergy.textContent = `${energySaved.toFixed(0)} kWh`;
+            co2Reduction.textContent = `${(co2Saved / 1000).toFixed(1)} tons`;
+            costSavings.textContent = `$ ${costSaved.toFixed(0)}`;
+            updateVisualization(lossLow, lossHigh, stepUpVoltage);
+            updateChart(lossLow, lossHigh, stepUpVoltage);
+        }
+        function updateVisualization(lossLow, lossHigh, stepUpVoltage) {
+            const existingElectrons = document.querySelectorAll('.electron');
+            const existingHeat = document.querySelectorAll('.heat-loss');
+            existingElectrons.forEach(el => el.remove());
+            existingHeat.forEach(el => el.remove());
+            const maxLoss = 100;
+            const heatIntensity = Math.min(lossLow / maxLoss, 1);
+            const glowIntensity = Math.min(lossLow / 5, 0.8);
+            cableGlow.style.background = `rgba(255, 0, 0, ${glowIntensity})`;
+            const r = Math.round(66 + (244 - 66) * heatIntensity);
+            const g = Math.round(165 + (67 - 165) * heatIntensity);
+            const b = Math.round(245 + (54 - 245) * heatIntensity);
+            cableHigh.style.background = `rgb(${r}, ${g}, ${b})`;
+            cableHigh.style.boxShadow = `0 0 ${15 * heatIntensity}px rgba(${r}, ${g}, ${b}, 0.8)`;
+            addElectrons(stepUpVoltage);
+            const heatParticles = Math.min(Math.floor(lossLow / 10), 10);
+            for (let i = 0; i < heatParticles; i++) {
+                const heat = document.createElement('div');
+                heat.className = 'heat-loss';
+                const position = 280 + Math.random() * (cableHigh.offsetWidth - 20);
+                heat.style.left = `${position}px`;
+                heat.style.top = `${40 + Math.random() * 20}%`;
+                heat.style.animationDelay = `${Math.random() * 2}s`;
+                const size = 20 + Math.random() * 10;
+                heat.style.width = `${size}px`;
+                heat.style.height = `${size}px`;
+                cableHigh.appendChild(heat);
+            }
+        }
+        function addElectrons(stepUpVoltage) {
+            const electronCount = 15;
+            const speedFactor = 132000 / stepUpVoltage;
+            for (let i = 0; i < electronCount; i++) {
+                const electron = document.createElement('div');
+                electron.className = 'electron electron-high';
+                electron.style.animationDuration = `${3 * speedFactor}s`;
+                electron.style.animationDelay = `${(i / electronCount) * 3 * speedFactor}s`;
+                cableHigh.appendChild(electron);
+            }
+            const cableLow = document.querySelector('.cable-low');
+            const cableLow2 = document.querySelector('.cable-low-2');
+            for (let i = 0; i < 5; i++) {
+                const electron1 = document.createElement('div');
+                electron1.className = 'electron electron-low';
+                electron1.style.animationDelay = `${(i / 5) * 1}s`;
+                cableLow.appendChild(electron1);
+                const electron2 = document.createElement('div');
+                electron2.className = 'electron electron-low';
+                electron2.style.animationDelay = `${(i / 5) * 1}s`;
+                cableLow2.appendChild(electron2);
+            }
+        }
+        function resetSimulation() {
+            powerSlider.value = 500;
+            distanceSlider.value = 50;
+            resistanceSlider.value = 0.3;
+            stepUpVoltageSlider.value = 132;
+            updateSimulation();
+        }
+        function exportToCSV() {
+            const power = parseInt(powerSlider.value);
+            const distance = parseInt(distanceSlider.value);
+            const resistance = parseFloat(resistanceSlider.value);
+            const stepUpVoltage = parseInt(stepUpVoltageSlider.value);
+            const currentLow = (power * 1000) / LOW_VOLTAGE;
+            const currentHigh = (power * 1000) / (stepUpVoltage * 1000);
+            const lossLow = Math.pow(currentLow, 2) * resistance * distance / 1000;
+            const lossHigh = Math.pow(currentHigh, 2) * resistance * distance / 1000;
+            const totalEfficiency = ((power - lossHigh) / power) * 100;
+            const energySaved = (lossLow - lossHigh) * 24 * 365;
+            const co2Saved = energySaved * CO2_PER_KWH;
+            const costSaved = energySaved * COST_PER_KWH;
+            const csvContent = [
+                ['High Voltage Power Transmission Simulation - Export Data'],
+                ['Exported on:', new Date().toLocaleString()],
+                [''],
+                ['Input Parameters'],
+                ['Parameter', 'Value', 'Unit'],
+                ['Electrical Power', power, 'kW'],
+                ['Transmission Distance', distance, 'km'],
+                ['Cable Resistance', resistance, 'Ω/km'],
+                ['Step-Up Voltage', stepUpVoltage, 'kV'],
+                [''],
+                ['Transmission Results'],
+                ['Metric', 'Low Voltage (11 kV)', 'High Voltage (' + stepUpVoltage + ' kV)', 'Unit'],
+                ['Current', currentLow.toFixed(3), currentHigh.toFixed(3), 'A'],
+                ['Power Loss', lossLow.toFixed(3), lossHigh.toFixed(3), 'kW'],
+                [''],
+                ['Performance Metrics'],
+                ['Metric', 'Value', 'Unit'],
+                ['Transmission Efficiency', totalEfficiency.toFixed(2), '%'],
+                ['Energy Saved (Annual)', energySaved.toFixed(0), 'kWh'],
+                ['CO₂ Reduction (Annual)', (co2Saved / 1000).toFixed(2), 'tons'],
+                ['Cost Savings (Annual)', costSaved.toFixed(2), 'USD'],
+                [''],
+                ['Source: Bakun Hydroelectric Dam → SMK Bintulu'],
+                ['Simulation by: High Voltage Power Transmission Simulation Tool']
+            ].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `PowerTransmission_Data_${timestamp}.csv`;
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('✅ Data exported successfully!\nFile: ' + filename);
+        }
+        powerSlider.addEventListener('input', updateSimulation);
+        distanceSlider.addEventListener('input', updateSimulation);
+        resistanceSlider.addEventListener('input', updateSimulation);
+        stepUpVoltageSlider.addEventListener('input', updateSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+        exportBtn.addEventListener('click', exportToCSV);
+        document.getElementById('darkModeToggle').onclick = function() {
+            document.body.classList.toggle('dark-mode');
+            this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+        };
+        function animateComponents() {
+            cableHigh.classList.add('cable-animated');
+            document.querySelector('.step-up-transformer').classList.add('transformer-animated');
+            setTimeout(() => {
+                cableHigh.classList.remove('cable-animated');
+                document.querySelector('.step-up-transformer').classList.remove('transformer-animated');
+            }, 1400);
+        }
+        powerSlider.addEventListener('input', animateComponents);
+        distanceSlider.addEventListener('input', animateComponents);
+        resistanceSlider.addEventListener('input', animateComponents);
+        stepUpVoltageSlider.addEventListener('input', animateComponents);
+        document.getElementById('showFormulaBtn').onclick = function() {
+            document.getElementById('formulaModal').style.display = 'block';
+        };
+        document.getElementById('feedbackForm').onsubmit = function(e) {
+            e.preventDefault();
+            const komen = document.getElementById('feedbackText').value;
+            const nama = document.getElementById('feedbackName').value;
+            localStorage.setItem('feedback', JSON.stringify({ komen, nama, masa: new Date().toISOString() }));
+            document.getElementById('feedbackStatus').textContent = 'Terima kasih atas maklum balas anda!';
+            document.getElementById('feedbackForm').reset();
+            setTimeout(() => { document.getElementById('feedbackStatus').textContent = ''; }, 5000);
+        };
+        initSimulation();
+        function checkAnswer(ans) {
+            const feedback = document.getElementById("quiz-feedback");
+            if (ans === 'decrease') {
+                feedback.textContent = "✅ Correct! When voltage increases, current decreases (I = P/V), so power loss (P_loss = I²R) decreases significantly.";
+                feedback.className = "quiz-feedback correct";
+            } else {
+                feedback.textContent = "❌ Incorrect. Think about the relationship P_loss = I²R. When voltage increases, what happens to current?";
+                feedback.className = "quiz-feedback incorrect";
+            }
+        }
+        function checkAnswer2(ans) {
+            const feedback = document.getElementById("quiz-feedback2");
+            if (ans === 'thick') {
+                feedback.textContent = "✅ Correct! Thicker cables have lower resistance (R), which reduces power loss according to P_loss = I²R.";
+                feedback.className = "quiz-feedback correct";
+            } else {
+                feedback.textContent = "❌ Incorrect. Consider how cable thickness affects resistance. Lower resistance means less power loss.";
+                feedback.className = "quiz-feedback incorrect";
+            }
+        }
+        function checkAnswer3(ans) {
+            const feedback = document.getElementById("quiz-feedback3");
+            if (ans === 'current') {
+                feedback.textContent = "✅ Correct! High voltage transmission reduces current (I = P/V), and since power loss = I²R, smaller current dramatically reduces losses.";
+                feedback.className = "quiz-feedback correct";
+            } else {
+                feedback.textContent = "❌ Incorrect. Remember that P_loss = I²R. High voltage reduces current, which is squared in the power loss formula.";
+                feedback.className = "quiz-feedback incorrect";
+            }
+        }
+    </script>
+</body>
+</html>
